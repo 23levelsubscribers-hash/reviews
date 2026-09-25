@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
+import { PurchaseFloatingButton } from './components/PurchaseFloatingButton';
 import { HomePage } from './pages/HomePage';
 import { ProofPage } from './pages/ProofPage';
 import { AdminPage } from './pages/AdminPage';
@@ -103,6 +104,8 @@ export default function App() {
           />
         )}
       </main>
+
+      <PurchaseFloatingButton />
 
       <Footer
         onNavigateHome={handleNavigateHome}

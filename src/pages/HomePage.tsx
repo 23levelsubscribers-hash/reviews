@@ -16,6 +16,7 @@ import {
   SlidersHorizontal,
   Flame,
   CheckCircle2,
+  ShoppingCart,
 } from 'lucide-react';
 import { api } from '../services/api';
 import { PublicProofData } from '../types';
@@ -170,6 +171,20 @@ export const HomePage: React.FC<HomePageProps> = () => {
               <Lock className="w-4 h-4 text-emerald-400" />
               <span>100% Genuine &amp; Tamper-Proof</span>
             </span>
+          </div>
+
+          {/* Direct Purchase Link to Official Store */}
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <a
+              href="https://toolclubpk.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-3 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-500 hover:to-rose-500 text-white font-black text-sm sm:text-base shadow-2xl shadow-red-950/70 border-2 border-red-400/50 hover:border-red-300 transition-all duration-300 hover:scale-105 active:scale-95 group cursor-pointer"
+            >
+              <ShoppingCart className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
+              <span>Purchase Now on toolclubpk.com</span>
+              <ExternalLink className="w-4 h-4 text-red-200 opacity-90 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+            </a>
           </div>
         </div>
       </section>
