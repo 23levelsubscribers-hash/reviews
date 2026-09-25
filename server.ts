@@ -150,10 +150,10 @@ export interface DatabaseSchema {
 
 // Database helper functions with persistent JSON storage
 function getInitialData(): DatabaseSchema {
-  const initialPasswordHash = bcrypt.hashSync('DeliverProof2026!', 10);
+  const initialPasswordHash = bcrypt.hashSync('bsse5038', 10);
   return {
     admin: {
-      username: 'admin',
+      username: 'toolclubpk@gmail.com',
       passwordHash: initialPasswordHash,
     },
     proofs: [
@@ -316,27 +316,37 @@ function requireAdminAuth(req: AuthenticatedRequest, res: Response, next: NextFu
 app.post('/api/admin/login', (req: Request, res: Response) => {
   const { username, password } = req.body;
   if (!username || !password) {
-    return res.status(400).json({ error: 'Username and password are required' });
+    return res.status(400).json({ error: 'Email and password are required' });
   }
 
   const db = readDb();
-  if (username !== db.admin.username) {
-    return res.status(401).json({ error: 'Invalid username or password' });
+  const inputUser = String(username).trim().toLowerCase();
+  const storedUser = String(db.admin.username || 'toolclubpk@gmail.com').trim().toLowerCase();
+
+  const isUserMatch =
+    inputUser === storedUser ||
+    inputUser === 'toolclubpk@gmail.com' ||
+    inputUser === 'toolclubpk' ||
+    inputUser === 'admin';
+
+  if (!isUserMatch) {
+    return res.status(401).json({ error: 'Invalid email or password' });
   }
 
   const isMatch = bcrypt.compareSync(password, db.admin.passwordHash);
   if (!isMatch) {
-    return res.status(401).json({ error: 'Invalid username or password' });
+    return res.status(401).json({ error: 'Invalid email or password' });
   }
 
-  const token = jwt.sign({ username: db.admin.username }, JWT_SECRET, {
+  const token = jwt.sign({ username: 'toolclubpk@gmail.com' }, JWT_SECRET, {
     expiresIn: '7d',
   });
 
   return res.json({
     token,
     user: {
-      username: db.admin.username,
+      username: 'toolclubpk@gmail.com',
+      email: 'toolclubpk@gmail.com',
       role: 'administrator',
     },
   });

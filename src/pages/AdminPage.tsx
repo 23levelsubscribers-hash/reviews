@@ -370,19 +370,19 @@ export const AdminPage: React.FC<AdminPageProps> = ({
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
-                  Admin Username
+                  Admin Email
                 </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
                     <User className="w-4 h-4" />
                   </div>
                   <input
-                    type="text"
+                    type="email"
                     required
                     value={usernameInput}
                     onChange={(e) => setUsernameInput(e.target.value)}
                     className="w-full pl-10 pr-4 py-2.5 bg-slate-950 rounded-xl border border-slate-800 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent font-medium"
-                    placeholder="Enter admin username"
+                    placeholder="toolclubpk@gmail.com"
                   />
                 </div>
               </div>
@@ -401,7 +401,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                     value={passwordInput}
                     onChange={(e) => setPasswordInput(e.target.value)}
                     className="w-full pl-10 pr-4 py-2.5 bg-slate-950 rounded-xl border border-slate-800 text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent font-medium"
-                    placeholder="Enter admin password"
+                    placeholder="Enter password"
                   />
                 </div>
               </div>
@@ -421,13 +421,6 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 </button>
               </div>
             </form>
-
-            {/* Quick credentials reminder badge */}
-            <div className="mt-6 pt-4 border-t border-slate-800 text-center">
-              <span className="text-[11px] text-slate-500 block">
-                Default Credentials: <code className="text-emerald-400 font-mono">admin</code> / <code className="text-emerald-400 font-mono">DeliverProof2026!</code>
-              </span>
-            </div>
           </div>
 
           <div className="text-center mt-6">

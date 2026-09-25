@@ -1,7 +1,8 @@
 {
   "admin": {
-    "username": "admin",
-    "passwordHash": "$2b$10$obKZbhUN/gEUrzd4lvX5gefopau0UQJbQJVt90oYz0Qch/jHpcPgW"
+    "username": "toolclubpk@gmail.com",
+    "email": "toolclubpk@gmail.com",
+    "passwordHash": "$2b$10$PCf2CBLE18SxCufk.mfKUOX4KOr9HL5Hy28ZjIrTbPBSwjANbPMzy"
   },
   "proofs": [
     {
@@ -54,6 +55,20 @@
       "updatedAt": "2026-09-24T09:00:00.000Z",
       "verifiedAt": "2026-09-24T09:10:00.000Z",
       "verificationHash": "ad448517df53e19683798cec22ffc92c99fe3837b2d53f491ad05a5ab6bb00dd"
+    },
+    {
+      "id": "proof-1790371558494-zxvib",
+      "customerId": "1234567",
+      "serviceName": "234567",
+      "deliveryDate": "September 26, 2026",
+      "screenshots": [
+        "/uploads/proof-1790371545954-12322830.jpg"
+      ],
+      "status": "active",
+      "createdAt": "2026-09-25T21:25:58.494Z",
+      "updatedAt": "2026-09-25T21:25:58.494Z",
+      "verifiedAt": "2026-09-25T21:25:58.494Z",
+      "verificationHash": "8e069267334e5c4ce5cbd8c93b77cbfa90178025056ebd8bf1205d2cb5db672a"
     }
   ]
 }
