@@ -26,11 +26,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigateHome }) => {
 
         {/* Right Actions */}
         <div className="flex items-center gap-2.5 sm:gap-3">
-          <div className="hidden md:flex items-center gap-2 text-xs text-red-400 bg-red-950/50 px-3 py-1.5 rounded-full border border-red-800/60 font-semibold backdrop-blur-md">
-            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-            <span>Live Activations</span>
-          </div>
-
           {/* Purchase Now CTA Button */}
           <a
             href="https://toolclubpk.com"
