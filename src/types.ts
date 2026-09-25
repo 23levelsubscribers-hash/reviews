@@ -21,6 +21,7 @@ export interface AdminStats {
 
 export interface AdminUser {
   username: string;
+  email?: string;
   role: string;
 }
 
