@@ -33,7 +33,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateHome, onNavigateAdmin 
           onClick={onNavigateAdmin}
           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white border border-slate-800 hover:border-slate-700 text-xs transition-colors cursor-pointer"
         >
-          <Lock className="w-3.5 h-3.5 text-red-400" />
+          <Lock className="w-3.5 h-3.5 text-[#4ADE80]" />
           <span>Admin Panel</span>
         </button>
       </div>

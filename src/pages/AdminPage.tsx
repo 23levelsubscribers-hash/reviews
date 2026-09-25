@@ -410,7 +410,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 <button
                   type="submit"
                   disabled={isLoggingIn}
-                  className="w-full py-3 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-sm transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-[#4ADE80] hover:bg-white text-slate-950 font-black rounded-xl text-sm transition-all shadow-[0_0_15px_rgba(74,222,128,0.4)] hover:shadow-[0_0_25px_#4ADE80] border border-[#4ADE80] disabled:opacity-50 cursor-pointer flex items-center justify-center gap-2"
                 >
                   {isLoggingIn ? (
                     <RefreshCw className="w-4 h-4 animate-spin" />
@@ -508,7 +508,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
           <button
             onClick={handleOpenAddModal}
-            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-sm transition-all shadow-lg shadow-emerald-500/20 cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#4ADE80] hover:bg-white text-slate-950 font-black rounded-xl text-sm transition-all shadow-[0_0_15px_rgba(74,222,128,0.4)] hover:shadow-[0_0_25px_#4ADE80] border border-[#4ADE80] cursor-pointer"
           >
             <Plus className="w-4 h-4 stroke-[3]" />
             <span>Add New Proof</span>
@@ -848,7 +848,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 <button
                   type="submit"
                   disabled={isSubmitting || isUploading}
-                  className="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition-all shadow-md shadow-emerald-500/20 disabled:opacity-50 flex items-center gap-2"
+                  className="px-5 py-2 rounded-xl bg-[#4ADE80] hover:bg-white text-slate-950 text-xs font-black transition-all shadow-[0_0_15px_rgba(74,222,128,0.4)] hover:shadow-[0_0_25px_#4ADE80] border border-[#4ADE80] disabled:opacity-50 flex items-center gap-2 cursor-pointer"
                 >
                   {isSubmitting ? (
                     <RefreshCw className="w-3.5 h-3.5 animate-spin" />
@@ -964,7 +964,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold"
+                  className="px-5 py-2 rounded-xl bg-[#4ADE80] hover:bg-white text-slate-950 text-xs font-black shadow-[0_0_15px_rgba(74,222,128,0.4)] hover:shadow-[0_0_25px_#4ADE80] border border-[#4ADE80] transition-all cursor-pointer"
                 >
                   Update Password
                 </button>

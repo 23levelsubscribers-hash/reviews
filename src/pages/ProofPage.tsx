@@ -184,11 +184,11 @@ export const ProofPage: React.FC<ProofPageProps> = ({ customerId, onNavigateHome
               href="https://toolclubpk.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white text-xs sm:text-sm font-extrabold rounded-lg shadow-lg shadow-red-950/50 border border-red-500/50 transition-all hover:scale-105 active:scale-95"
+              className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-2 bg-[#4ADE80] hover:bg-white text-slate-950 text-xs sm:text-sm font-black rounded-lg shadow-[0_0_15px_rgba(74,222,128,0.4)] hover:shadow-[0_0_25px_#4ADE80] border border-[#4ADE80] transition-all hover:scale-105 active:scale-95"
             >
-              <ShoppingCart className="w-4 h-4 text-white" />
+              <ShoppingCart className="w-4 h-4 text-slate-950" />
               <span>Purchase Now</span>
-              <ExternalLink className="w-3 h-3 text-red-200" />
+              <ExternalLink className="w-3 h-3 text-slate-800" />
             </a>
 
             <button
@@ -399,9 +399,9 @@ export const ProofPage: React.FC<ProofPageProps> = ({ customerId, onNavigateHome
         </div>
 
         {/* Order / Purchase New Tools Banner */}
-        <div className="rounded-2xl bg-gradient-to-r from-red-950/60 via-slate-900 to-emerald-950/40 border border-red-500/30 p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
+        <div className="rounded-2xl bg-gradient-to-r from-emerald-950/60 via-slate-900 to-purple-950/40 border border-[#4ADE80]/30 p-6 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
           <div className="flex items-center gap-3.5 text-left">
-            <div className="w-12 h-12 rounded-xl bg-red-600/20 border border-red-500/40 flex items-center justify-center text-red-400 shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-[#4ADE80]/15 border border-[#4ADE80]/40 flex items-center justify-center text-[#4ADE80] shrink-0">
               <ShoppingCart className="w-6 h-6" />
             </div>
             <div>
@@ -417,10 +417,10 @@ export const ProofPage: React.FC<ProofPageProps> = ({ customerId, onNavigateHome
             href="https://toolclubpk.com"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-extrabold text-sm shadow-lg shadow-red-950/60 transition-all hover:scale-105 active:scale-95 shrink-0"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#4ADE80] hover:bg-white text-slate-950 font-black text-sm shadow-[0_0_20px_rgba(74,222,128,0.4)] hover:shadow-[0_0_30px_#4ADE80] border border-[#4ADE80] transition-all hover:scale-105 active:scale-95 shrink-0"
           >
             <span>Purchase on toolclubpk.com</span>
-            <ExternalLink className="w-4 h-4 text-red-200" />
+            <ExternalLink className="w-4 h-4 text-slate-800" />
           </a>
         </div>
 

@@ -137,14 +137,14 @@ export const HomePage: React.FC<HomePageProps> = () => {
             </div>
           </div>
 
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-950/60 border border-red-500/30 text-red-400 text-xs font-bold tracking-wider mb-3 shadow-inner backdrop-blur-md">
-            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-950/60 border border-[#4ADE80]/30 text-[#4ADE80] text-xs font-bold tracking-wider mb-3 shadow-inner backdrop-blur-md">
+            <span className="w-2 h-2 rounded-full bg-[#4ADE80] animate-pulse"></span>
             <span>OFFICIAL PROOF &amp; ACTIVATION PORTAL</span>
           </div>
 
           <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white tracking-tight mb-2">
             Toolclubpk <br className="sm:hidden" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-rose-400 to-emerald-400 drop-shadow-sm">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-sky-400 to-[#4ADE80] drop-shadow-sm">
               Proofs &amp; Activations
             </span>
           </h1>
@@ -160,30 +160,30 @@ export const HomePage: React.FC<HomePageProps> = () => {
           {/* Quick Stats Badges */}
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-xs">
             <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-300 backdrop-blur-md shadow-sm">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <ShieldCheck className="w-4 h-4 text-[#4ADE80]" />
               <span>{allScreenshots.length} Verified Screenshots</span>
             </span>
             <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-300 backdrop-blur-md shadow-sm">
-              <CheckCircle2 className="w-4 h-4 text-red-400" />
+              <CheckCircle2 className="w-4 h-4 text-[#4ADE80]" />
               <span>{proofs.length} Fulfillments Completed</span>
             </span>
             <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-300 backdrop-blur-md shadow-sm">
-              <Lock className="w-4 h-4 text-emerald-400" />
+              <Lock className="w-4 h-4 text-[#4ADE80]" />
               <span>100% Genuine &amp; Tamper-Proof</span>
             </span>
           </div>
 
-          {/* Direct Purchase Link to Official Store */}
+          {/* Direct Purchase Link to Official Store - ToolClubPK Style */}
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
             <a
               href="https://toolclubpk.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-3 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-red-600 via-rose-600 to-red-700 hover:from-red-500 hover:to-rose-500 text-white font-black text-sm sm:text-base shadow-2xl shadow-red-950/70 border-2 border-red-400/50 hover:border-red-300 transition-all duration-300 hover:scale-105 active:scale-95 group cursor-pointer"
+              className="inline-flex items-center gap-3 px-7 py-3.5 rounded-2xl bg-[#4ADE80] hover:bg-white text-slate-950 font-black text-sm sm:text-base shadow-[0_0_20px_rgba(74,222,128,0.5)] hover:shadow-[0_0_35px_#4ADE80] border-2 border-[#4ADE80] transition-all duration-300 hover:scale-105 active:scale-95 group cursor-pointer"
             >
-              <ShoppingCart className="w-5 h-5 text-white group-hover:scale-110 transition-transform" />
-              <span>Purchase Now on toolclubpk.com</span>
-              <ExternalLink className="w-4 h-4 text-red-200 opacity-90 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+              <ShoppingCart className="w-5 h-5 text-slate-950 group-hover:scale-110 transition-transform" />
+              <span className="tracking-wide">Purchase Now on toolclubpk.com</span>
+              <ExternalLink className="w-4 h-4 text-slate-800 opacity-90 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             </a>
           </div>
         </div>
@@ -195,7 +195,7 @@ export const HomePage: React.FC<HomePageProps> = () => {
         {/* Gallery Control Bar */}
         <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-slate-900/50 border border-slate-800 backdrop-blur-xl shadow-xl">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-red-600/20 border border-red-500/40 flex items-center justify-center text-red-400 font-bold">
+            <div className="w-9 h-9 rounded-xl bg-[#4ADE80]/15 border border-[#4ADE80]/40 flex items-center justify-center text-[#4ADE80] font-bold">
               <Layers className="w-5 h-5" />
             </div>
             <div>
@@ -213,10 +213,10 @@ export const HomePage: React.FC<HomePageProps> = () => {
             <div className="flex flex-wrap items-center gap-1.5 text-xs">
               <button
                 onClick={() => setSelectedService('all')}
-                className={`px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
                   selectedService === 'all'
-                    ? 'bg-red-600 text-white shadow-md shadow-red-600/20'
-                    : 'bg-slate-800/80 text-slate-400 hover:text-white hover:bg-slate-800'
+                    ? 'bg-[#4ADE80] text-slate-950 shadow-md shadow-[#4ADE80]/30 font-black'
+                    : 'bg-slate-800/80 text-slate-400 hover:text-[#4ADE80] hover:bg-slate-800'
                 }`}
               >
                 All ({allScreenshots.length})
@@ -225,10 +225,10 @@ export const HomePage: React.FC<HomePageProps> = () => {
                 <button
                   key={svc}
                   onClick={() => setSelectedService(svc)}
-                  className={`px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer truncate max-w-[150px] ${
+                  className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer truncate max-w-[150px] ${
                     selectedService === svc
-                      ? 'bg-red-600 text-white shadow-md shadow-red-600/20'
-                      : 'bg-slate-800/80 text-slate-400 hover:text-white hover:bg-slate-800'
+                      ? 'bg-[#4ADE80] text-slate-950 shadow-md shadow-[#4ADE80]/30 font-black'
+                      : 'bg-slate-800/80 text-slate-400 hover:text-[#4ADE80] hover:bg-slate-800'
                   }`}
                   title={svc}
                 >
@@ -242,7 +242,7 @@ export const HomePage: React.FC<HomePageProps> = () => {
         {/* Loading State */}
         {loading ? (
           <div className="py-28 flex flex-col items-center justify-center">
-            <div className="w-14 h-14 rounded-2xl bg-red-600/10 border border-red-500/30 flex items-center justify-center text-red-400 mb-4 animate-pulse">
+            <div className="w-14 h-14 rounded-2xl bg-[#4ADE80]/10 border border-[#4ADE80]/30 flex items-center justify-center text-[#4ADE80] mb-4 animate-pulse">
               <RefreshCw className="w-7 h-7 animate-spin" />
             </div>
             <p className="text-base font-semibold text-slate-300">Loading delivery proofs gallery...</p>
@@ -264,7 +264,7 @@ export const HomePage: React.FC<HomePageProps> = () => {
               <div
                 key={`${item.proofId}-${idx}`}
                 onClick={() => openScreenshotInLightbox(idx)}
-                className="group relative rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-red-500/60 overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-2xl hover:shadow-red-500/10 flex flex-col backdrop-blur-md hover:-translate-y-1"
+                className="group relative rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-[#4ADE80]/60 overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-2xl hover:shadow-[#4ADE80]/10 flex flex-col backdrop-blur-md hover:-translate-y-1"
               >
                 {/* Screenshot Frame */}
                 <div className="aspect-[16/10] w-full overflow-hidden bg-slate-950 flex items-center justify-center relative">
@@ -277,7 +277,7 @@ export const HomePage: React.FC<HomePageProps> = () => {
 
                   {/* Gradient Overlay & Zoom Pill on Hover */}
                   <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-red-600 text-white text-xs font-bold shadow-lg shadow-red-600/40">
+                    <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#4ADE80] text-slate-950 text-xs font-black shadow-lg shadow-[#4ADE80]/40">
                       <ZoomIn className="w-3.5 h-3.5" />
                       <span>Click to Enlarge</span>
                     </div>
@@ -285,16 +285,16 @@ export const HomePage: React.FC<HomePageProps> = () => {
 
                   {/* Order ID Pill Tag on top-left of image */}
                   <div className="absolute top-2.5 left-2.5">
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-slate-950/85 text-emerald-400 border border-slate-700/80 font-mono text-[11px] font-bold backdrop-blur-md shadow-sm">
-                      <Hash className="w-3 h-3 text-emerald-500" />
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-slate-950/85 text-[#4ADE80] border border-slate-700/80 font-mono text-[11px] font-bold backdrop-blur-md shadow-sm">
+                      <Hash className="w-3 h-3 text-[#4ADE80]" />
                       {item.customerId}
                     </span>
                   </div>
 
                   {/* Verified Badge on top-right */}
                   <div className="absolute top-2.5 right-2.5">
-                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-red-950/85 text-red-300 border border-red-800/80 text-[10px] font-bold backdrop-blur-md shadow-sm">
-                      <ShieldCheck className="w-3 h-3 text-red-400" />
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-950/85 text-[#4ADE80] border border-[#4ADE80]/40 text-[10px] font-bold backdrop-blur-md shadow-sm">
+                      <ShieldCheck className="w-3 h-3 text-[#4ADE80]" />
                       Verified
                     </span>
                   </div>
@@ -303,7 +303,7 @@ export const HomePage: React.FC<HomePageProps> = () => {
                 {/* Card Details Body */}
                 <div className="p-4 flex-1 flex flex-col justify-between bg-slate-900/80 border-t border-slate-800/60">
                   <div>
-                    <h3 className="font-bold text-sm text-white tracking-tight line-clamp-1 group-hover:text-red-400 transition-colors">
+                    <h3 className="font-bold text-sm text-white tracking-tight line-clamp-1 group-hover:text-[#4ADE80] transition-colors">
                       {item.serviceName}
                     </h3>
 
@@ -324,11 +324,11 @@ export const HomePage: React.FC<HomePageProps> = () => {
                   {/* Card Bottom Meta */}
                   <div className="mt-3 pt-2.5 border-t border-slate-800/70 flex items-center justify-between text-[11px] text-slate-500">
                     <div className="flex items-center gap-1 text-slate-400">
-                      <Calendar className="w-3 h-3 text-red-400" />
+                      <Calendar className="w-3 h-3 text-[#4ADE80]" />
                       <span>{item.deliveryDate}</span>
                     </div>
 
-                    <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/50 px-2 py-0.5 rounded border border-emerald-900/60">
+                    <span className="text-[10px] font-mono text-[#4ADE80] bg-emerald-950/50 px-2 py-0.5 rounded border border-[#4ADE80]/40">
                       Active
                     </span>
                   </div>
