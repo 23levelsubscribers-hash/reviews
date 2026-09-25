@@ -13,15 +13,22 @@ export const Navbar: React.FC<NavbarProps> = ({ onNavigateHome }) => {
         {/* Brand Logo */}
         <button
           onClick={onNavigateHome}
-          className="flex items-center group focus:outline-none cursor-pointer py-1"
+          className="flex items-center gap-2.5 sm:gap-3 group focus:outline-none cursor-pointer py-1"
           aria-label="Toolclubpk - Proofs & Activations"
         >
           <img
-            src="/toolclubpk-header-logo.svg"
-            alt="Toolclubpk - Proofs & Activations"
-            className="h-10 sm:h-12 w-auto object-contain hover:scale-[1.02] transition-transform duration-300 drop-shadow-md"
-            referrerPolicy="no-referrer"
+            src="/logo.png"
+            alt="Toolclubpk Logo"
+            className="w-10 h-10 sm:w-11 sm:h-11 rounded-full object-contain drop-shadow-[0_0_12px_rgba(255,255,255,0.25)] group-hover:scale-105 transition-transform duration-300"
           />
+          <div className="flex flex-col text-left">
+            <span className="font-display font-black text-lg sm:text-xl tracking-tight text-white leading-tight flex items-center">
+              TOOLCLUB<span className="text-red-500">PK</span>
+            </span>
+            <span className="text-[10px] sm:text-[11px] font-bold text-slate-400 -mt-0.5 tracking-wider uppercase">
+              Proofs &amp; Activations
+            </span>
+          </div>
         </button>
 
         {/* Right Actions */}

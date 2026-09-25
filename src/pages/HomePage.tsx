@@ -126,8 +126,8 @@ export const HomePage: React.FC<HomePageProps> = () => {
             <div className="absolute -inset-2 bg-gradient-to-r from-red-600 via-zinc-600 to-emerald-500 rounded-full blur-xl opacity-50 group-hover:opacity-80 transition duration-500 animate-pulse" />
             <div className="relative w-32 h-32 sm:w-40 sm:h-40 rounded-full shadow-2xl flex items-center justify-center overflow-hidden bg-black p-0.5 border-2 border-slate-700/80 hover:border-red-500 transition-colors">
               <img
-                src="/toolclubpk-logo.svg"
-                alt="Toolclubpk TCPK Official HD Logo"
+                src="/logo.png"
+                alt="Toolclubpk Official Logo"
                 className="w-full h-full object-contain rounded-full hover:scale-105 transition-transform duration-300"
               />
               <span className="absolute bottom-1 right-2 flex h-6 w-6">

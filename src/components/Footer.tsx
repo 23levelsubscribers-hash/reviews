@@ -15,9 +15,9 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateHome, onNavigateAdmin 
           className="flex items-center gap-2.5 text-slate-300 font-semibold focus:outline-none cursor-pointer"
         >
           <img
-            src="/toolclubpk-logo.svg"
+            src="/logo.png"
             alt="Toolclubpk Logo"
-            className="w-7 h-7 rounded-full object-contain bg-black border border-slate-700"
+            className="w-8 h-8 rounded-full object-contain bg-black border border-slate-700 drop-shadow-sm"
           />
           <span className="font-bold text-slate-200">Toolclubpk</span>
         </button>

@@ -344,14 +344,14 @@ export const AdminPage: React.FC<AdminPageProps> = ({
               aria-label="Back to Home"
             >
               <img
-                src="/toolclubpk-admin-logo.svg"
-                alt="Toolclubpk Admin Portal"
-                className="h-14 sm:h-16 w-auto object-contain drop-shadow-xl"
-                referrerPolicy="no-referrer"
+                src="/logo.png"
+                alt="Toolclubpk Official Logo"
+                className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-contain drop-shadow-xl border-2 border-slate-700 hover:border-[#4ADE80] transition-colors"
               />
             </button>
-            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-              Admin Portal
+            <h1 className="text-xl sm:text-2xl font-black text-white tracking-tight flex items-center gap-1.5">
+              <span>TOOLCLUB<span className="text-red-500">PK</span></span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 font-bold border border-slate-700">Admin</span>
             </h1>
             <p className="text-xs sm:text-sm text-slate-400 mt-1">
               Delivery Proofs &amp; Activations Management
@@ -452,15 +452,22 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <button
             onClick={onNavigateHome}
-            className="flex items-center group focus:outline-none cursor-pointer py-1"
+            className="flex items-center gap-2.5 group focus:outline-none cursor-pointer py-1"
             aria-label="Toolclubpk Admin"
           >
             <img
-              src="/toolclubpk-admin-logo.svg"
+              src="/logo.png"
               alt="Toolclubpk Admin - Proofs & Activations"
-              className="h-10 sm:h-11 w-auto object-contain hover:scale-[1.02] transition-transform duration-300 drop-shadow-md"
-              referrerPolicy="no-referrer"
+              className="w-10 h-10 rounded-full object-contain hover:scale-105 transition-transform duration-300 drop-shadow-md"
             />
+            <div className="flex flex-col text-left">
+              <span className="font-display font-black text-base sm:text-lg tracking-tight text-white leading-tight flex items-center">
+                TOOLCLUB<span className="text-red-500">PK</span>
+              </span>
+              <span className="text-[10px] font-bold text-[#4ADE80] tracking-wider uppercase">
+                Admin Console
+              </span>
+            </div>
           </button>
 
           <div className="flex items-center gap-3">

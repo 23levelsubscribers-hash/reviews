@@ -227,9 +227,9 @@ export const ProofPage: React.FC<ProofPageProps> = ({ customerId, onNavigateHome
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-700/70">
             <div className="flex items-start gap-4">
               <img
-                src="/toolclubpk-logo.svg"
+                src="/logo.png"
                 alt="Toolclubpk Logo"
-                className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-contain bg-slate-950 p-1 border-2 border-red-500/40 shadow-xl shrink-0"
+                className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-contain bg-slate-950 p-1 border-2 border-[#4ADE80]/40 shadow-xl shrink-0"
               />
               <div className="space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
