@@ -13,7 +13,11 @@ async function safeFetchJson<T = any>(url: string, options?: RequestInit): Promi
   try {
     res = await fetch(url, { ...options, headers });
   } catch (netErr: any) {
-    throw new Error('Unable to connect to server. Please check your internet connection and try again.');
+    const errorMsg =
+      netErr && typeof netErr === 'object' && netErr.message
+        ? String(netErr.message)
+        : 'Unable to connect to server. Please check your internet connection and try again.';
+    throw new Error(errorMsg);
   }
 
   const rawText = await res.text();
@@ -30,7 +34,17 @@ async function safeFetchJson<T = any>(url: string, options?: RequestInit): Promi
   }
 
   if (!res.ok) {
-    throw new Error(parsedData?.error || `Request failed with status ${res.status}`);
+    let errorStr = '';
+    if (typeof parsedData?.error === 'string') {
+      errorStr = parsedData.error;
+    } else if (typeof parsedData?.message === 'string') {
+      errorStr = parsedData.message;
+    } else if (parsedData?.error && typeof parsedData.error === 'object') {
+      errorStr = parsedData.error.message || JSON.stringify(parsedData.error);
+    } else {
+      errorStr = `Request failed with status ${res.status}`;
+    }
+    throw new Error(errorStr);
   }
 
   return parsedData as T;

@@ -111,7 +111,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       setProofs(data.proofs);
       setStats(data.stats);
     } catch (err: any) {
-      showToast(err.message || 'Error loading dashboard data');
+      showToast(getErrorMessage(err, 'Error loading dashboard data'));
     } finally {
       setLoadingData(false);
     }
@@ -133,7 +133,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       loadProofsData();
       showToast('Admin logged in successfully');
     } catch (err: any) {
-      setLoginError(err.message || 'Invalid credentials');
+      setLoginError(getErrorMessage(err, 'Invalid credentials'));
     } finally {
       setIsLoggingIn(false);
     }
@@ -143,6 +143,23 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     api.removeToken();
     setIsAuthenticated(false);
     setCurrentUser(null);
+  };
+
+  // Helper to extract clean error message
+  const getErrorMessage = (err: any, defaultMsg: string): string => {
+    if (!err) return defaultMsg;
+    if (typeof err === 'string') return err;
+    if (typeof err.message === 'string') return err.message;
+    if (err.error && typeof err.error === 'string') return err.error;
+    if (typeof err === 'object') {
+      try {
+        const json = JSON.stringify(err);
+        return json !== '{}' ? json : defaultMsg;
+      } catch {
+        return defaultMsg;
+      }
+    }
+    return String(err) || defaultMsg;
   };
 
   // Open modal for new proof
@@ -190,7 +207,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       setFormScreenshots((prev) => [...prev, ...uploadedUrls]);
       showToast(`Uploaded ${uploadedUrls.length} screenshot(s)`);
     } catch (err: any) {
-      setFormError(err.message || 'Upload failed. Only image files (JPG, PNG, WEBP, GIF, SVG) are allowed.');
+      setFormError(getErrorMessage(err, 'Upload failed. Only image files (JPG, PNG, WEBP, GIF, SVG) are allowed.'));
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -250,7 +267,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       setIsModalOpen(false);
       loadProofsData();
     } catch (err: any) {
-      setFormError(err.message || 'Failed to save proof');
+      setFormError(getErrorMessage(err, 'Failed to save proof'));
     } finally {
       setIsSubmitting(false);
     }
@@ -266,7 +283,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
       setProofToDelete(null);
       loadProofsData();
     } catch (err: any) {
-      showToast(err.message || 'Failed to delete proof');
+      showToast(getErrorMessage(err, 'Failed to delete proof'));
     }
   };
 
@@ -303,7 +320,7 @@ export const AdminPage: React.FC<AdminPageProps> = ({
         setPwdSuccess('');
       }, 1500);
     } catch (err: any) {
-      setPwdError(err.message || 'Failed to change password');
+      setPwdError(getErrorMessage(err, 'Failed to change password'));
     }
   };
 
