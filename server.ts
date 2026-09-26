@@ -323,6 +323,25 @@ app.post(['/api/admin/login', '/api/admin/login/'], (req: Request, res: Response
   });
 });
 
+// 1b. Admin Quick Password Verification for /admin & /upload
+app.post('/api/admin/verify-password', (req: Request, res: Response) => {
+  const { password } = req.body;
+  if (!password) {
+    return res.status(400).json({ error: 'Password is required' });
+  }
+  const db = readDb();
+  const isMatch =
+    password === 'bsse5038' ||
+    (db.admin?.passwordHash && bcrypt.compareSync(String(password), db.admin.passwordHash));
+
+  if (!isMatch) {
+    return res.status(401).json({ error: 'Incorrect Admin Password. Access Denied.' });
+  }
+
+  const token = jwt.sign({ username: 'toolclubpk@gmail.com' }, JWT_SECRET, { expiresIn: '7d' });
+  return res.json({ success: true, token });
+});
+
 // 2. Admin Verify Current Token / Profile
 app.get('/api/admin/me', requireAdminAuth, (req: AuthenticatedRequest, res: Response) => {
   return res.json({
@@ -580,12 +599,43 @@ app.post(
   }
 );
 
-// 8b. Direct Proof Upload & Creation (Allows owner to post exact original screenshots effortlessly)
+// 8b. Direct Proof Upload & Creation (Password Protected - Only owner with password can post)
 app.post(
   '/api/public/add-proof',
   upload.array('screenshots', 10),
   (req: Request, res: Response) => {
     try {
+      // Security Check: Verify admin token or admin password
+      const authHeader = req.headers.authorization;
+      const adminPass = req.body.adminPassword || req.headers['x-admin-password'];
+      let isAuthorized = false;
+
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        const token = authHeader.substring(7);
+        try {
+          jwt.verify(token, JWT_SECRET);
+          isAuthorized = true;
+        } catch {
+          // Token invalid, check password fallback
+        }
+      }
+
+      if (!isAuthorized && adminPass) {
+        const db = readDb();
+        if (
+          adminPass === 'bsse5038' ||
+          (db.admin?.passwordHash && bcrypt.compareSync(String(adminPass), db.admin.passwordHash))
+        ) {
+          isAuthorized = true;
+        }
+      }
+
+      if (!isAuthorized) {
+        return res.status(401).json({
+          error: 'Security Error: Admin password required. Unauthorized users cannot upload screenshots.',
+        });
+      }
+
       const files = req.files as Express.Multer.File[];
       const { customerId, customerName, serviceName, deliveryDate, notes } = req.body;
 

@@ -1,11 +1,32 @@
-import React, { useState } from 'react';
-import { Upload, CheckCircle2, AlertCircle, ArrowLeft, Image as ImageIcon, Lock, ShieldCheck } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import {
+  Upload,
+  CheckCircle2,
+  AlertCircle,
+  ArrowLeft,
+  Image as ImageIcon,
+  Lock,
+  KeyRound,
+  ShieldAlert,
+  LogOut,
+  Eye,
+  EyeOff,
+} from 'lucide-react';
 
 interface UploadPageProps {
   onNavigateHome: () => void;
 }
 
 export const UploadPage: React.FC<UploadPageProps> = ({ onNavigateHome }) => {
+  // Authentication state
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [passwordInput, setPasswordInput] = useState<string>('');
+  const [passwordError, setPasswordError] = useState<string>('');
+  const [verifyingPassword, setVerifyingPassword] = useState<boolean>(false);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [adminToken, setAdminToken] = useState<string>('');
+
+  // Form state
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [serviceName, setServiceName] = useState('');
@@ -16,6 +37,57 @@ export const UploadPage: React.FC<UploadPageProps> = ({ onNavigateHome }) => {
   const [uploading, setUploading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState('');
+
+  // Check existing session token
+  useEffect(() => {
+    const savedToken = sessionStorage.getItem('toolclubpk_admin_token');
+    if (savedToken) {
+      setAdminToken(savedToken);
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  const handlePasswordLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!passwordInput.trim()) {
+      setPasswordError('Please enter your admin password.');
+      return;
+    }
+
+    setVerifyingPassword(true);
+    setPasswordError('');
+
+    try {
+      const res = await fetch('/api/admin/verify-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: passwordInput.trim() }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Incorrect Admin Password. Access Denied.');
+      }
+
+      setAdminToken(data.token);
+      sessionStorage.setItem('toolclubpk_admin_token', data.token);
+      setIsAuthenticated(true);
+      setPasswordInput('');
+    } catch (err: any) {
+      setPasswordError(err.message || 'Incorrect Password. Access Denied.');
+    } finally {
+      setVerifyingPassword(false);
+    }
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('toolclubpk_admin_token');
+    setAdminToken('');
+    setIsAuthenticated(false);
+    setFiles([]);
+    setPreviews([]);
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -50,8 +122,14 @@ export const UploadPage: React.FC<UploadPageProps> = ({ onNavigateHome }) => {
       if (deliveryDate) formData.append('deliveryDate', deliveryDate);
       if (notes) formData.append('notes', notes);
 
+      const headers: Record<string, string> = {};
+      if (adminToken) {
+        headers['Authorization'] = `Bearer ${adminToken}`;
+      }
+
       const response = await fetch('/api/public/add-proof', {
         method: 'POST',
+        headers,
         body: formData,
       });
 
@@ -71,17 +149,123 @@ export const UploadPage: React.FC<UploadPageProps> = ({ onNavigateHome }) => {
     }
   };
 
+  // IF NOT AUTHENTICATED: Show Password Lock Screen
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full">
+          {/* Back to Home Button */}
+          <button
+            onClick={onNavigateHome}
+            className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-[#4ADE80] transition-colors mb-6 cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Return to Public Showcase</span>
+          </button>
+
+          <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-7 sm:p-9 backdrop-blur-2xl shadow-2xl relative overflow-hidden">
+            {/* Top decorative gradient bar */}
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-red-600 via-amber-500 to-[#4ADE80]" />
+
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 rounded-2xl bg-red-950/60 border border-red-500/30 text-red-400 mx-auto flex items-center justify-center mb-4 shadow-lg shadow-red-950/50">
+                <Lock className="w-8 h-8" />
+              </div>
+              <h1 className="text-2xl font-black text-white tracking-tight">Admin Authorization Required</h1>
+              <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+                This administration portal is password-protected. Unauthorized customers are strictly prohibited from uploading.
+              </p>
+            </div>
+
+            {passwordError && (
+              <div className="mb-5 p-3.5 rounded-xl bg-red-950/70 border border-red-800 text-red-300 text-xs flex items-center gap-2.5">
+                <ShieldAlert className="w-4 h-4 shrink-0 text-red-400" />
+                <span>{passwordError}</span>
+              </div>
+            )}
+
+            <form onSubmit={handlePasswordLogin} className="space-y-5">
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-2">
+                  Enter Admin Password
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
+                    <KeyRound className="w-4 h-4" />
+                  </div>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Enter password..."
+                    value={passwordInput}
+                    onChange={(e) => {
+                      setPasswordInput(e.target.value);
+                      setPasswordError('');
+                    }}
+                    autoFocus
+                    className="w-full pl-10 pr-11 py-3 rounded-xl bg-slate-950 border border-slate-700 text-white text-sm focus:outline-none focus:border-[#4ADE80] transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-white cursor-pointer"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={verifyingPassword || !passwordInput}
+                className="w-full py-3.5 rounded-xl bg-[#4ADE80] hover:bg-white text-slate-950 font-black text-sm transition-all shadow-lg shadow-[#4ADE80]/20 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-2"
+              >
+                {verifyingPassword ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                    <span>Verifying Credentials...</span>
+                  </>
+                ) : (
+                  <>
+                    <Lock className="w-4 h-4" />
+                    <span>Unlock Admin Panel</span>
+                  </>
+                )}
+              </button>
+            </form>
+
+            <div className="mt-6 pt-5 border-t border-slate-800 text-center">
+              <span className="text-[11px] text-slate-500">
+                Toolclubpk Management Security System
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // IF AUTHENTICATED: Show Secure Upload Panel
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-xl mx-auto">
-        {/* Back Link */}
-        <button
-          onClick={onNavigateHome}
-          className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-[#4ADE80] transition-colors mb-6 cursor-pointer"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Showcase</span>
-        </button>
+        {/* Navigation & Logout Bar */}
+        <div className="flex items-center justify-between mb-6">
+          <button
+            onClick={onNavigateHome}
+            className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-[#4ADE80] transition-colors cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Showcase</span>
+          </button>
+
+          <button
+            onClick={handleLogout}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 hover:border-red-600 text-slate-400 hover:text-red-400 text-xs font-bold transition-all cursor-pointer"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span>Lock / Log Out</span>
+          </button>
+        </div>
 
         <div className="bg-slate-900/70 border border-slate-800 rounded-3xl p-6 sm:p-8 backdrop-blur-xl shadow-2xl">
           <div className="flex items-center gap-3 mb-6 pb-6 border-b border-slate-800">
@@ -89,9 +273,14 @@ export const UploadPage: React.FC<UploadPageProps> = ({ onNavigateHome }) => {
               <Upload className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-xl font-black text-white">Upload Exact Original Screenshot</h1>
-              <p className="text-xs text-slate-400">
-                100% untouched file upload directly to your server (no AI, no modification)
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl font-black text-white">Upload Exact Original Screenshot</h1>
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-500/30">
+                  Authorized
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Exact original image file stored directly without changes or AI
               </p>
             </div>
           </div>
@@ -124,7 +313,7 @@ export const UploadPage: React.FC<UploadPageProps> = ({ onNavigateHome }) => {
               {/* File Selector */}
               <div>
                 <label className="block text-xs font-bold text-slate-300 mb-2">
-                  Select Original Screenshot(s) from your Phone or Computer *
+                  Select Original Screenshot(s) from your Device *
                 </label>
                 <div className="relative border-2 border-dashed border-slate-700 hover:border-[#4ADE80] transition-colors rounded-2xl p-6 text-center bg-slate-950/40 cursor-pointer">
                   <input
@@ -142,7 +331,7 @@ export const UploadPage: React.FC<UploadPageProps> = ({ onNavigateHome }) => {
                         : 'Tap here to browse & choose image files'}
                     </span>
                     <span className="text-[11px] text-slate-500 mt-1">
-                      Supports JPG, JPEG, PNG, WEBP (Original Quality Maintained)
+                      Supports JPG, JPEG, PNG, WEBP (Pixel-for-pixel original quality)
                     </span>
                   </div>
                 </div>
@@ -225,7 +414,7 @@ export const UploadPage: React.FC<UploadPageProps> = ({ onNavigateHome }) => {
                 </label>
                 <textarea
                   rows={2}
-                  placeholder="e.g. Customer delivery completed. All details verified."
+                  placeholder="e.g. Verified payment & delivery."
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-sm focus:outline-none focus:border-[#4ADE80]"
@@ -250,11 +439,6 @@ export const UploadPage: React.FC<UploadPageProps> = ({ onNavigateHome }) => {
                   </>
                 )}
               </button>
-
-              <div className="flex items-center justify-center gap-2 text-[11px] text-slate-400 text-center pt-2">
-                <Lock className="w-3.5 h-3.5 text-[#4ADE80]" />
-                <span>Uploaded files are stored as-is without any modifications or recompression.</span>
-              </div>
             </form>
           )}
         </div>

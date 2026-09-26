@@ -1,5 +1,4 @@
 import React from 'react';
-import { Lock } from 'lucide-react';
 
 interface FooterProps {
   onNavigateHome: () => void;
@@ -25,14 +24,6 @@ export const Footer: React.FC<FooterProps> = ({ onNavigateHome }) => {
           <p className="text-slate-500">
             © {new Date().getFullYear()} Toolclubpk. Official Customer Delivery &amp; Proofs Showcase.
           </p>
-          <a
-            href="#/upload"
-            className="text-slate-600 hover:text-slate-400 transition-colors flex items-center gap-1 cursor-pointer"
-            title="Upload original screenshot"
-          >
-            <Lock className="w-3 h-3" />
-            <span>Upload</span>
-          </a>
         </div>
       </div>
     </footer>

@@ -18,8 +18,19 @@ export default function App() {
     const path = window.location.pathname;
     const hash = window.location.hash;
 
-    // Check upload route
-    if (path === '/upload' || path === '/admin' || hash === '#/upload' || hash === '#upload') {
+    // Check admin / upload route
+    if (
+      path === '/upload' ||
+      path === '/upload/' ||
+      path === '/admin' ||
+      path === '/admin/' ||
+      hash.startsWith('#/upload') ||
+      hash.startsWith('#upload') ||
+      hash.startsWith('#/admin') ||
+      hash.startsWith('#admin') ||
+      urlParams.get('admin') !== null ||
+      urlParams.get('upload') !== null
+    ) {
       return { type: 'upload' };
     }
 
