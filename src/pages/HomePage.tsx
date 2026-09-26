@@ -266,12 +266,12 @@ export const HomePage: React.FC<HomePageProps> = () => {
                 onClick={() => openScreenshotInLightbox(idx)}
                 className="group relative rounded-2xl bg-slate-900/60 border border-slate-800/80 hover:border-[#4ADE80]/60 overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-2xl hover:shadow-[#4ADE80]/10 flex flex-col backdrop-blur-md hover:-translate-y-1"
               >
-                {/* Screenshot Frame */}
-                <div className="aspect-[16/10] w-full overflow-hidden bg-slate-950 flex items-center justify-center relative">
+                {/* Screenshot Frame - Preserves original mobile phone aspect ratio without cropping */}
+                <div className="aspect-[9/16] w-full overflow-hidden bg-slate-950 flex items-center justify-center relative p-1">
                   <img
                     src={item.url}
                     alt={`${item.serviceName} proof #${idx + 1}`}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    className="w-full h-full object-contain group-hover:scale-[1.02] transition-transform duration-300"
                     loading="lazy"
                   />
 

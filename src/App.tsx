@@ -4,10 +4,12 @@ import { Footer } from './components/Footer';
 import { PurchaseFloatingButton } from './components/PurchaseFloatingButton';
 import { HomePage } from './pages/HomePage';
 import { ProofPage } from './pages/ProofPage';
+import { UploadPage } from './pages/UploadPage';
 
 type RouteState =
   | { type: 'home' }
-  | { type: 'proof'; customerId: string };
+  | { type: 'proof'; customerId: string }
+  | { type: 'upload' };
 
 export default function App() {
   const [route, setRoute] = useState<RouteState>(() => parseRoute());
@@ -15,6 +17,11 @@ export default function App() {
   function parseRoute(): RouteState {
     const path = window.location.pathname;
     const hash = window.location.hash;
+
+    // Check upload route
+    if (path === '/upload' || path === '/admin' || hash === '#/upload' || hash === '#upload') {
+      return { type: 'upload' };
+    }
 
     // Check hash-based routing fallback (e.g. #/proof/TC-1025)
     if (hash.startsWith('#/proof/')) {
@@ -78,6 +85,10 @@ export default function App() {
             customerId={route.customerId}
             onNavigateHome={handleNavigateHome}
           />
+        )}
+
+        {route.type === 'upload' && (
+          <UploadPage onNavigateHome={handleNavigateHome} />
         )}
       </main>
 

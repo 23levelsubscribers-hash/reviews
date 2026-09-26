@@ -29,9 +29,10 @@
   <circle cx="95" cy="48" r="10" fill="#8696a0"/>
   <path d="M78 68 C80 60 110 60 112 68" fill="#8696a0"/>
   
-  <!-- Contact Name & Verified Badge -->
-  <text x="135" y="52" fill="#e9edef" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="700" font-size="22">Chaudhry Rehman</text>
-  <rect x="135" y="66" width="160" height="14" rx="7" fill="#22c55e" opacity="0.85"/>
+  <!-- Contact Name & Privacy-Protected Number Badge -->
+  <text x="135" y="50" fill="#e9edef" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-weight="700" font-size="21">Verified Customer</text>
+  <rect x="135" y="62" width="180" height="20" rx="5" fill="#1f2c34" stroke="#2a3942" stroke-width="1"/>
+  <text x="145" y="76" fill="#4ade80" font-family="sans-serif" font-weight="bold" font-size="11">🔒 NUMBER PROTECTED</text>
   
   <!-- 23h Badge & Menu Icons -->
   <rect x="525" y="38" width="85" height="34" rx="17" fill="#202c33"/>
@@ -55,7 +56,7 @@
   <text x="60" y="278" fill="#111b21" font-family="sans-serif" font-weight="bold" font-size="17">Payment send</text>
   <text x="145" y="300" fill="#3b5212" font-family="sans-serif" font-size="12">8:22 PM</text>
 
-  <!-- Payment Receipt Card (Easypaisa / Interbank) -->
+  <!-- Payment Receipt Card (Easypaisa / Interbank) with Customer Number and Private Data Strictly Hidden -->
   <g filter="url(#shadow)">
     <!-- White Card Base -->
     <rect x="40" y="330" width="450" height="490" rx="28" fill="#ffffff"/>
@@ -66,14 +67,16 @@
 
     <!-- Heading -->
     <text x="265" y="475" fill="#0f172a" font-family="sans-serif" font-weight="900" font-size="22" text-anchor="middle" letter-spacing="0.5">FUNDS TRANSFERRED</text>
-    <text x="265" y="505" fill="#64748b" font-family="sans-serif" font-size="14" text-anchor="middle">Transaction reference ID # 267628786937</text>
+    <text x="265" y="505" fill="#64748b" font-family="sans-serif" font-size="14" text-anchor="middle">Transaction reference ID # 2676••••••••</text>
     <text x="265" y="528" fill="#0f172a" font-family="sans-serif" font-weight="700" font-size="15" text-anchor="middle">24-Sep-2026 08:18:10 PM</text>
 
-    <!-- Paid From Box -->
+    <!-- Paid From Box: Customer Name shown, Customer Number completely HIDDEN -->
     <rect x="58" y="550" width="414" height="65" rx="10" fill="#f8fafc" stroke="#38bdf8" stroke-width="1.5"/>
     <text x="75" y="576" fill="#475569" font-family="sans-serif" font-weight="800" font-size="13">PAID FROM</text>
-    <text x="450" y="576" fill="#0f172a" font-family="sans-serif" font-weight="800" font-size="14" text-anchor="end">SHAHBAZ</text>
-    <text x="450" y="600" fill="#64748b" font-family="sans-serif" font-size="13" text-anchor="end">**********0929</text>
+    <text x="450" y="576" fill="#0f172a" font-family="sans-serif" font-weight="800" font-size="14" text-anchor="end">SHAHBAZ (Verified)</text>
+    <!-- Customer Number Row Strictly Censored / Hidden -->
+    <rect x="290" y="586" width="165" height="20" rx="5" fill="#0284c7"/>
+    <text x="372" y="600" fill="#ffffff" font-family="sans-serif" font-weight="bold" font-size="10" text-anchor="middle">🔒 NUMBER HIDDEN</text>
 
     <!-- Transfer Type Box -->
     <rect x="58" y="625" width="414" height="48" rx="10" fill="#f8fafc" stroke="#38bdf8" stroke-width="1.5"/>
@@ -84,7 +87,9 @@
     <rect x="58" y="683" width="414" height="85" rx="10" fill="#f8fafc" stroke="#38bdf8" stroke-width="1.5"/>
     <text x="75" y="718" fill="#475569" font-family="sans-serif" font-weight="800" font-size="13">BENEFICIARY</text>
     <text x="450" y="712" fill="#0f172a" font-family="sans-serif" font-weight="800" font-size="14" text-anchor="end">SAIMA SIDDIQUE</text>
-    <text x="450" y="734" fill="#64748b" font-family="sans-serif" font-size="13" text-anchor="end">*****************3937</text>
+    <!-- Beneficiary Account Number Protected -->
+    <rect x="280" y="722" width="175" height="18" rx="4" fill="#64748b"/>
+    <text x="367" y="735" fill="#ffffff" font-family="sans-serif" font-weight="bold" font-size="10" text-anchor="middle">🔒 ACCOUNT PROTECTED</text>
     <text x="450" y="756" fill="#059669" font-family="sans-serif" font-weight="bold" font-size="13" text-anchor="end">Easypaisa Bank Limited</text>
 
     <!-- Green tail tab -->
