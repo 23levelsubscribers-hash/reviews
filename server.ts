@@ -180,66 +180,7 @@ function getInitialData(): DatabaseSchema {
       username: 'toolclubpk@gmail.com',
       passwordHash: initialPasswordHash,
     },
-    proofs: [
-      {
-        id: 'proof-tc-1025',
-        customerId: 'TC-1025',
-        customerName: 'Marcus Vance',
-        serviceName: 'Premium Digital Subscription',
-        deliveryDate: 'September 26, 2026',
-        notes: 'Delivered premium annual credentials, private access link, and 2FA key configuration. Verification test completed successfully.',
-        screenshots: [
-          '/uploads/sample-delivery-1.svg',
-          '/uploads/sample-delivery-2.svg',
-          '/uploads/sample-delivery-3.svg',
-        ],
-        status: 'active',
-        createdAt: '2026-09-25T14:00:00.000Z',
-        updatedAt: '2026-09-25T14:00:00.000Z',
-        verifiedAt: '2026-09-26T14:15:00.000Z',
-        verificationHash: crypto
-          .createHash('sha256')
-          .update('TC-1025-Premium Digital Subscription-2026-09-26')
-          .digest('hex'),
-      },
-      {
-        id: 'proof-tc-1026',
-        customerId: 'TC-1026',
-        customerName: 'Aura Media Global',
-        serviceName: 'Enterprise Cloud Deployment',
-        deliveryDate: 'September 25, 2026',
-        notes: 'Production container migration deployed to multi-region cluster. Healthchecks responding 200 OK across all instances.',
-        screenshots: [
-          '/uploads/sample-delivery-1.svg',
-          '/uploads/sample-delivery-3.svg',
-        ],
-        status: 'active',
-        createdAt: '2026-09-25T11:20:00.000Z',
-        updatedAt: '2026-09-25T11:20:00.000Z',
-        verifiedAt: '2026-09-25T11:35:00.000Z',
-        verificationHash: crypto
-          .createHash('sha256')
-          .update('TC-1026-Enterprise Cloud Deployment-2026-09-25')
-          .digest('hex'),
-      },
-      {
-        id: 'proof-ord-8821',
-        customerId: 'ORD-8821',
-        customerName: 'NovaTech Solutions',
-        serviceName: 'Custom API Gateway Integration',
-        deliveryDate: 'September 24, 2026',
-        notes: 'API endpoints, token revocation workflow, and Postman collection delivered. Waiting for staging sign-off.',
-        screenshots: ['/uploads/sample-delivery-2.svg'],
-        status: 'inactive',
-        createdAt: '2026-09-24T09:00:00.000Z',
-        updatedAt: '2026-09-24T09:00:00.000Z',
-        verifiedAt: '2026-09-24T09:10:00.000Z',
-        verificationHash: crypto
-          .createHash('sha256')
-          .update('ORD-8821-Custom API Gateway Integration-2026-09-24')
-          .digest('hex'),
-      },
-    ],
+    proofs: [],
   };
 }
 

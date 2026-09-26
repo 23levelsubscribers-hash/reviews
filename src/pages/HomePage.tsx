@@ -252,9 +252,9 @@ export const HomePage: React.FC<HomePageProps> = () => {
             <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center text-slate-400 mx-auto mb-4">
               <ShieldCheck className="w-6 h-6" />
             </div>
-            <h3 className="text-lg font-bold text-white mb-2">No Screenshots Uploaded Yet</h3>
+            <h3 className="text-lg font-bold text-white mb-2">No Delivery Screenshots Yet</h3>
             <p className="text-xs text-slate-400">
-              New delivery screenshots will appear here directly as soon as they are added in the Admin Panel.
+              Verified customer delivery screenshots and activation proofs will be displayed here.
             </p>
           </div>
         ) : (
