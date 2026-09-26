@@ -4,38 +4,5 @@
     "email": "toolclubpk@gmail.com",
     "passwordHash": "$2b$10$PCf2CBLE18SxCufk.mfKUOX4KOr9HL5Hy28ZjIrTbPBSwjANbPMzy"
   },
-  "proofs": [
-    {
-      "id": "proof-tc-9412",
-      "customerId": "TC-9412",
-      "customerName": "Liaqat Ali",
-      "serviceName": "Capcut Pro (12 Months)",
-      "deliveryDate": "September 24, 2026",
-      "notes": "Payment received PKR 1,000 via Raast (HBL) to Saima Siddique. Capcut Pro private credentials delivered with 12 months access.",
-      "screenshots": [
-        "/proof-capcut-24sep.svg"
-      ],
-      "status": "active",
-      "createdAt": "2026-09-24T15:32:00.000Z",
-      "updatedAt": "2026-09-24T15:32:00.000Z",
-      "verifiedAt": "2026-09-24T20:32:00.000Z",
-      "verificationHash": "d8e29a4f61b72e50d185a0824b6118e9508c909e46a7824141680dca6312a0f8"
-    },
-    {
-      "id": "proof-tc-7823",
-      "customerId": "TC-7823",
-      "customerName": "Shahbaz",
-      "serviceName": "NordVPN (12 Months)",
-      "deliveryDate": "September 24, 2026",
-      "notes": "Funds transferred via Interbank to Easypaisa Bank (Saima Siddique). Reference ID # 267628786937. NordVPN Premium 12 Months package confirmed.",
-      "screenshots": [
-        "/proof-nordvpn-24sep.svg"
-      ],
-      "status": "active",
-      "createdAt": "2026-09-24T15:23:00.000Z",
-      "updatedAt": "2026-09-24T15:23:00.000Z",
-      "verifiedAt": "2026-09-24T20:23:00.000Z",
-      "verificationHash": "fa71630129cdbc4a9e229c9103e67098e9a9f4bc3a45cbb68598cfd19124430e"
-    }
-  ]
+  "proofs": []
 }

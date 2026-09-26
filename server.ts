@@ -180,36 +180,7 @@ function getInitialData(): DatabaseSchema {
       username: 'toolclubpk@gmail.com',
       passwordHash: initialPasswordHash,
     },
-    proofs: [
-      {
-        id: 'proof-tc-9412',
-        customerId: 'TC-9412',
-        customerName: 'Liaqat Ali',
-        serviceName: 'Capcut Pro (12 Months)',
-        deliveryDate: 'September 24, 2026',
-        notes: 'Payment received PKR 1,000 via Raast (HBL) to Saima Siddique. Capcut Pro private credentials delivered with 12 months access.',
-        screenshots: ['/proof-capcut-24sep.svg'],
-        status: 'active',
-        createdAt: '2026-09-24T15:32:00.000Z',
-        updatedAt: '2026-09-24T15:32:00.000Z',
-        verifiedAt: '2026-09-24T20:32:00.000Z',
-        verificationHash: 'd8e29a4f61b72e50d185a0824b6118e9508c909e46a7824141680dca6312a0f8',
-      },
-      {
-        id: 'proof-tc-7823',
-        customerId: 'TC-7823',
-        customerName: 'Shahbaz',
-        serviceName: 'NordVPN (12 Months)',
-        deliveryDate: 'September 24, 2026',
-        notes: 'Funds transferred via Interbank to Easypaisa Bank (Saima Siddique). Reference ID # 267628786937. NordVPN Premium 12 Months package confirmed.',
-        screenshots: ['/proof-nordvpn-24sep.svg'],
-        status: 'active',
-        createdAt: '2026-09-24T15:23:00.000Z',
-        updatedAt: '2026-09-24T15:23:00.000Z',
-        verifiedAt: '2026-09-24T20:23:00.000Z',
-        verificationHash: 'fa71630129cdbc4a9e229c9103e67098e9a9f4bc3a45cbb68598cfd19124430e',
-      },
-    ],
+    proofs: [],
   };
 }
 
@@ -606,6 +577,92 @@ app.post(
         });
       }
     });
+  }
+);
+
+// 8b. Direct Proof Upload & Creation (Allows owner to post exact original screenshots effortlessly)
+app.post(
+  '/api/public/add-proof',
+  upload.array('screenshots', 10),
+  (req: Request, res: Response) => {
+    try {
+      const files = req.files as Express.Multer.File[];
+      const { customerId, customerName, serviceName, deliveryDate, notes } = req.body;
+
+      let screenshotUrls: string[] = [];
+      if (files && files.length > 0) {
+        screenshotUrls = files.map((file) => {
+          const ext = path.extname(file.originalname).toLowerCase() || '.png';
+          const filename = `proof-${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
+          let mimeType = file.mimetype;
+          if (!mimeType || mimeType === 'application/octet-stream') {
+            if (ext === '.jpg' || ext === '.jpeg') mimeType = 'image/jpeg';
+            else if (ext === '.webp') mimeType = 'image/webp';
+            else mimeType = 'image/png';
+          }
+          try {
+            if (!fs.existsSync(UPLOADS_DIR)) {
+              fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+            }
+            fs.writeFileSync(path.join(UPLOADS_DIR, filename), file.buffer);
+            return `/uploads/${filename}`;
+          } catch {
+            return `data:${mimeType};base64,${file.buffer.toString('base64')}`;
+          }
+        });
+      }
+
+      // Also check if direct base64 or URL screenshots array was passed in body
+      if (req.body.screenshots) {
+        try {
+          const parsed = typeof req.body.screenshots === 'string' ? JSON.parse(req.body.screenshots) : req.body.screenshots;
+          if (Array.isArray(parsed)) {
+            screenshotUrls.push(...parsed);
+          }
+        } catch {
+          if (typeof req.body.screenshots === 'string') {
+            screenshotUrls.push(req.body.screenshots);
+          }
+        }
+      }
+
+      const cleanCustomerId = (customerId || `TC-${Math.floor(1000 + Math.random() * 9000)}`).trim().toUpperCase();
+      const cleanService = (serviceName || 'Digital Subscription Delivery').trim();
+      const cleanDate = (deliveryDate || 'September 24, 2026').trim();
+
+      const db = readDb();
+      const now = new Date().toISOString();
+      const proofId = `proof-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+      const verificationHash = crypto
+        .createHash('sha256')
+        .update(`${cleanCustomerId}-${cleanService}-${cleanDate}-${now}`)
+        .digest('hex');
+
+      const newProof: ProofItem = {
+        id: proofId,
+        customerId: cleanCustomerId,
+        customerName: customerName ? customerName.trim() : undefined,
+        serviceName: cleanService,
+        deliveryDate: cleanDate,
+        notes: notes ? notes.trim() : undefined,
+        screenshots: screenshotUrls,
+        status: 'active',
+        createdAt: now,
+        updatedAt: now,
+        verifiedAt: now,
+        verificationHash,
+      };
+
+      db.proofs.unshift(newProof);
+      writeDb(db);
+
+      return res.json({
+        success: true,
+        proof: newProof,
+      });
+    } catch (err: any) {
+      return res.status(500).json({ error: err.message || 'Failed to save proof' });
+    }
   }
 );
 
