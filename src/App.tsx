@@ -4,12 +4,10 @@ import { Footer } from './components/Footer';
 import { PurchaseFloatingButton } from './components/PurchaseFloatingButton';
 import { HomePage } from './pages/HomePage';
 import { ProofPage } from './pages/ProofPage';
-import { AdminPage } from './pages/AdminPage';
 
 type RouteState =
   | { type: 'home' }
-  | { type: 'proof'; customerId: string }
-  | { type: 'admin' };
+  | { type: 'proof'; customerId: string };
 
 export default function App() {
   const [route, setRoute] = useState<RouteState>(() => parseRoute());
@@ -18,19 +16,13 @@ export default function App() {
     const path = window.location.pathname;
     const hash = window.location.hash;
 
-    // Check hash-based routing fallback (e.g. #/admin or #/proof/TC-1025)
-    if (hash.startsWith('#/admin') || hash === '#admin') {
-      return { type: 'admin' };
-    }
+    // Check hash-based routing fallback (e.g. #/proof/TC-1025)
     if (hash.startsWith('#/proof/')) {
       const id = hash.replace('#/proof/', '').trim();
       if (id) return { type: 'proof', customerId: decodeURIComponent(id) };
     }
 
     // Check standard pathname
-    if (path.startsWith('/admin')) {
-      return { type: 'admin' };
-    }
     if (path.startsWith('/proof/')) {
       const id = path.replace('/proof/', '').trim();
       if (id) return { type: 'proof', customerId: decodeURIComponent(id) };
@@ -68,29 +60,13 @@ export default function App() {
     navigateTo('/');
   };
 
-  const handleNavigateAdmin = () => {
-    navigateTo('/admin');
-  };
-
   const handleNavigateToProof = (customerId: string) => {
     navigateTo(`/proof/${encodeURIComponent(customerId)}`);
   };
 
-  if (route.type === 'admin') {
-    return (
-      <AdminPage
-        onNavigateHome={handleNavigateHome}
-        onNavigateToProof={handleNavigateToProof}
-      />
-    );
-  }
-
   return (
     <div className="min-h-screen flex flex-col bg-slate-900 text-slate-100 font-sans">
-      <Navbar
-        onNavigateHome={handleNavigateHome}
-        onNavigateAdmin={handleNavigateAdmin}
-      />
+      <Navbar onNavigateHome={handleNavigateHome} />
 
       <main className="flex-1">
         {route.type === 'home' && (
@@ -107,10 +83,8 @@ export default function App() {
 
       <PurchaseFloatingButton />
 
-      <Footer
-        onNavigateHome={handleNavigateHome}
-        onNavigateAdmin={handleNavigateAdmin}
-      />
+      <Footer onNavigateHome={handleNavigateHome} />
     </div>
   );
 }
+

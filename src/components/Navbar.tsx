@@ -2,7 +2,6 @@ import React from 'react';
 
 interface NavbarProps {
   onNavigateHome: () => void;
-  onNavigateAdmin?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ onNavigateHome }) => {
