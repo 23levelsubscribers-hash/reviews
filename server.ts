@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -12,116 +13,139 @@ dotenv.config();
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'deliverproof-secret-super-secure-key-2026';
-const DATA_DIR = path.resolve(process.cwd(), 'data');
-const UPLOADS_DIR = path.resolve(DATA_DIR, 'uploads');
-const DB_FILE = path.resolve(DATA_DIR, 'db.json');
 
-// Ensure data and uploads directories exist
-if (!fs.existsSync(DATA_DIR)) {
-  fs.mkdirSync(DATA_DIR, { recursive: true });
-}
-if (!fs.existsSync(UPLOADS_DIR)) {
-  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-}
+// Determine writable directory (supports Vercel serverless, AWS Lambda, Docker, Cloud Run, and local)
+let DATA_DIR = path.resolve(process.cwd(), 'data');
+let UPLOADS_DIR = path.resolve(DATA_DIR, 'uploads');
+let DB_FILE = path.resolve(DATA_DIR, 'db.json');
 
-// Generate sample SVGs for default sample data
-const sample1Path = path.join(UPLOADS_DIR, 'sample-delivery-1.svg');
-const sample2Path = path.join(UPLOADS_DIR, 'sample-delivery-2.svg');
-const sample3Path = path.join(UPLOADS_DIR, 'sample-delivery-3.svg');
-
-if (!fs.existsSync(sample1Path)) {
-  fs.writeFileSync(
-    sample1Path,
-    `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
-      <defs>
-        <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#0f172a" />
-          <stop offset="100%" stop-color="#1e293b" />
-        </linearGradient>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#bg)"/>
-      <rect x="30" y="30" width="740" height="440" rx="12" fill="#1e293b" stroke="#334155" stroke-width="2"/>
-      <circle cx="60" cy="65" r="7" fill="#ef4444"/>
-      <circle cx="85" cy="65" r="7" fill="#f59e0b"/>
-      <circle cx="110" cy="65" r="7" fill="#10b981"/>
-      <text x="140" y="70" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="13">deliverproof.console/delivery-status</text>
-      <line x1="30" y1="95" x2="770" y2="95" stroke="#334155" stroke-width="1.5"/>
-      <rect x="60" y="125" width="680" height="90" rx="8" fill="#0f172a" stroke="#22c55e" stroke-width="1"/>
-      <circle cx="95" cy="170" r="18" fill="#16a34a" />
-      <path d="M88 170l5 5 10-10" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-      <text x="130" y="162" fill="#ffffff" font-family="system-ui, sans-serif" font-weight="bold" font-size="16">DELIVERY SUCCESSFUL &amp; VERIFIED</text>
-      <text x="130" y="185" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="13">Transaction: TX-994820-A • Handshake Verified at 14:26:00 UTC</text>
-      <rect x="60" y="240" width="325" height="195" rx="8" fill="#0f172a" stroke="#334155"/>
-      <text x="80" y="275" fill="#e2e8f0" font-family="system-ui, sans-serif" font-weight="600" font-size="14">Package Specifications</text>
-      <text x="80" y="310" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="13">Customer ID: TC-1025</text>
-      <text x="80" y="340" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="13">Tier: Enterprise Ultimate (365 Days)</text>
-      <text x="80" y="370" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="13">Access Token: live_sec_•••••••92e0</text>
-      <text x="80" y="400" fill="#10b981" font-family="system-ui, sans-serif" font-weight="600" font-size="13">Status: Operational &amp; Active</text>
-      <rect x="415" y="240" width="325" height="195" rx="8" fill="#0f172a" stroke="#334155"/>
-      <text x="435" y="275" fill="#e2e8f0" font-family="system-ui, sans-serif" font-weight="600" font-size="14">Cryptographic Checksum</text>
-      <text x="435" y="310" fill="#64748b" font-family="monospace" font-size="11">SHA-256 Digest:</text>
-      <text x="435" y="335" fill="#38bdf8" font-family="monospace" font-size="11">e3b0c44298fc1c149afbf4c8996fb92427</text>
-      <text x="435" y="370" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="12">Integrity validated on delivery node</text>
-      <rect x="435" y="390" width="160" height="26" rx="4" fill="#166534"/>
-      <text x="445" y="407" fill="#86efac" font-family="system-ui, sans-serif" font-weight="bold" font-size="11">✓ ZERO TAMPER SEAL</text>
-    </svg>`
-  );
+try {
+  if (!fs.existsSync(DATA_DIR)) {
+    fs.mkdirSync(DATA_DIR, { recursive: true });
+  }
+  const testFile = path.join(DATA_DIR, `.perm-test-${Date.now()}`);
+  fs.writeFileSync(testFile, 'ok');
+  fs.unlinkSync(testFile);
+} catch (_err) {
+  // Read-only filesystem fallback (e.g. Vercel / AWS Lambda / Serverless)
+  DATA_DIR = path.join(os.tmpdir(), 'deliverproof_data');
+  UPLOADS_DIR = path.join(DATA_DIR, 'uploads');
+  DB_FILE = path.join(DATA_DIR, 'db.json');
+  try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
+  } catch (_) {}
 }
 
-if (!fs.existsSync(sample2Path)) {
-  fs.writeFileSync(
-    sample2Path,
-    `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
-      <defs>
-        <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#022c22" />
-          <stop offset="100%" stop-color="#0f172a" />
-        </linearGradient>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#bg2)"/>
-      <rect x="30" y="30" width="740" height="440" rx="12" fill="#064e3b" stroke="#059669" stroke-width="1.5"/>
-      <circle cx="60" cy="65" r="7" fill="#ef4444"/>
-      <circle cx="85" cy="65" r="7" fill="#f59e0b"/>
-      <circle cx="110" cy="65" r="7" fill="#10b981"/>
-      <text x="140" y="70" fill="#a7f3d0" font-family="system-ui, sans-serif" font-size="13">deliverproof.console/license-provisioning</text>
-      <line x1="30" y1="95" x2="770" y2="95" stroke="#047857" stroke-width="1"/>
-      <rect x="60" y="120" width="680" height="110" rx="8" fill="#022c22" stroke="#10b981"/>
-      <text x="85" y="155" fill="#34d399" font-family="system-ui, sans-serif" font-weight="bold" font-size="18">LICENSE KEY ACTIVATION CONFIRMED</text>
-      <text x="85" y="185" fill="#d1fae5" font-family="system-ui, sans-serif" font-size="14">License Code: DPS-9921-XRT-7734-KKL9</text>
-      <text x="85" y="210" fill="#6ee7b7" font-family="system-ui, sans-serif" font-size="12">Customer: TC-1025 • Registered &amp; Verified directly to recipient address</text>
-      <rect x="60" y="250" width="680" height="185" rx="8" fill="#022c22" stroke="#047857"/>
-      <text x="85" y="285" fill="#e2e8f0" font-family="system-ui, sans-serif" font-weight="600" font-size="14">Execution Log &amp; Confirmation Receipt</text>
-      <text x="85" y="318" fill="#94a3b8" font-family="monospace" font-size="12">[2026-09-26 14:15:02] Provisioning server response: 200 OK</text>
-      <text x="85" y="342" fill="#94a3b8" font-family="monospace" font-size="12">[2026-09-26 14:15:03] Digital payload transmitted to designated recipient</text>
-      <text x="85" y="366" fill="#10b981" font-family="monospace" font-size="12">[2026-09-26 14:15:05] Handshake confirmed by receiving host - Delivery Completed</text>
-      <text x="85" y="405" fill="#a7f3d0" font-family="system-ui, sans-serif" font-size="13">Digital Signature: 0x9f4a8b1c... verified valid</text>
-    </svg>`
-  );
-}
+try {
+  if (!fs.existsSync(UPLOADS_DIR)) {
+    fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+  }
+} catch (_) {}
 
-if (!fs.existsSync(sample3Path)) {
-  fs.writeFileSync(
-    sample3Path,
-    `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
-      <rect width="100%" height="100%" fill="#090d16"/>
-      <rect x="30" y="30" width="740" height="440" rx="12" fill="#0f172a" stroke="#3b82f6" stroke-width="1.5"/>
-      <circle cx="60" cy="65" r="7" fill="#ef4444"/>
-      <circle cx="85" cy="65" r="7" fill="#f59e0b"/>
-      <circle cx="110" cy="65" r="7" fill="#10b981"/>
-      <text x="140" y="70" fill="#93c5fd" font-family="system-ui, sans-serif" font-size="13">deliverproof.console/delivery-receipt</text>
-      <line x1="30" y1="95" x2="770" y2="95" stroke="#1e293b" stroke-width="1"/>
-      <rect x="60" y="120" width="680" height="310" rx="8" fill="#1e293b" stroke="#334155"/>
-      <text x="90" y="165" fill="#ffffff" font-family="system-ui, sans-serif" font-weight="bold" font-size="20">Official Certificate of Service Delivery</text>
-      <text x="90" y="195" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="14">Order / Customer ID: <tspan fill="#60a5fa" font-weight="600">TC-1025</tspan></text>
-      <text x="90" y="225" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="14">Service: <tspan fill="#ffffff" font-weight="600">Premium Digital Subscription</tspan></text>
-      <text x="90" y="255" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="14">Delivery Date: <tspan fill="#ffffff" font-weight="600">September 26, 2026</tspan></text>
-      <line x1="90" y1="280" x2="710" y2="280" stroke="#334155"/>
-      <text x="90" y="320" fill="#cbd5e1" font-family="system-ui, sans-serif" font-size="13">Notes: Full onboarding documentation and subscription credentials delivered successfully.</text>
-      <text x="90" y="345" fill="#cbd5e1" font-family="system-ui, sans-serif" font-size="13">Customer acknowledged and confirmed live access with zero errors reported.</text>
-      <rect x="90" y="380" width="220" height="34" rx="6" fill="#2563eb"/>
-      <text x="105" y="402" fill="#ffffff" font-family="system-ui, sans-serif" font-weight="bold" font-size="13">VERIFIED COMPLETED</text>
-    </svg>`
-  );
+// Generate sample SVGs for default sample data safely
+try {
+  const sample1Path = path.join(UPLOADS_DIR, 'sample-delivery-1.svg');
+  const sample2Path = path.join(UPLOADS_DIR, 'sample-delivery-2.svg');
+  const sample3Path = path.join(UPLOADS_DIR, 'sample-delivery-3.svg');
+
+  if (!fs.existsSync(sample1Path)) {
+    fs.writeFileSync(
+      sample1Path,
+      `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+        <defs>
+          <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#0f172a" />
+            <stop offset="100%" stop-color="#1e293b" />
+          </linearGradient>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#bg)"/>
+        <rect x="30" y="30" width="740" height="440" rx="12" fill="#1e293b" stroke="#334155" stroke-width="2"/>
+        <circle cx="60" cy="65" r="7" fill="#ef4444"/>
+        <circle cx="85" cy="65" r="7" fill="#f59e0b"/>
+        <circle cx="110" cy="65" r="7" fill="#10b981"/>
+        <text x="140" y="70" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="13">deliverproof.console/delivery-status</text>
+        <line x1="30" y1="95" x2="770" y2="95" stroke="#334155" stroke-width="1.5"/>
+        <rect x="60" y="125" width="680" height="90" rx="8" fill="#0f172a" stroke="#22c55e" stroke-width="1"/>
+        <circle cx="95" cy="170" r="18" fill="#16a34a" />
+        <path d="M88 170l5 5 10-10" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="130" y="162" fill="#ffffff" font-family="system-ui, sans-serif" font-weight="bold" font-size="16">DELIVERY SUCCESSFUL &amp; VERIFIED</text>
+        <text x="130" y="185" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="13">Transaction: TX-994820-A • Handshake Verified at 14:26:00 UTC</text>
+        <rect x="60" y="240" width="325" height="195" rx="8" fill="#0f172a" stroke="#334155"/>
+        <text x="80" y="275" fill="#e2e8f0" font-family="system-ui, sans-serif" font-weight="600" font-size="14">Package Specifications</text>
+        <text x="80" y="310" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="13">Customer ID: TC-1025</text>
+        <text x="80" y="340" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="13">Tier: Enterprise Ultimate (365 Days)</text>
+        <text x="80" y="370" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="13">Access Token: live_sec_•••••••92e0</text>
+        <text x="80" y="400" fill="#10b981" font-family="system-ui, sans-serif" font-weight="600" font-size="13">Status: Operational &amp; Active</text>
+        <rect x="415" y="240" width="325" height="195" rx="8" fill="#0f172a" stroke="#334155"/>
+        <text x="435" y="275" fill="#e2e8f0" font-family="system-ui, sans-serif" font-weight="600" font-size="14">Cryptographic Checksum</text>
+        <text x="435" y="310" fill="#64748b" font-family="monospace" font-size="11">SHA-256 Digest:</text>
+        <text x="435" y="335" fill="#38bdf8" font-family="monospace" font-size="11">e3b0c44298fc1c149afbf4c8996fb92427</text>
+        <text x="435" y="370" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="12">Integrity validated on delivery node</text>
+        <rect x="435" y="390" width="160" height="26" rx="4" fill="#166534"/>
+        <text x="445" y="407" fill="#86efac" font-family="system-ui, sans-serif" font-weight="bold" font-size="11">✓ ZERO TAMPER SEAL</text>
+      </svg>`
+    );
+  }
+
+  if (!fs.existsSync(sample2Path)) {
+    fs.writeFileSync(
+      sample2Path,
+      `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+        <defs>
+          <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#022c22" />
+            <stop offset="100%" stop-color="#0f172a" />
+          </linearGradient>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#bg2)"/>
+        <rect x="30" y="30" width="740" height="440" rx="12" fill="#064e3b" stroke="#059669" stroke-width="1.5"/>
+        <circle cx="60" cy="65" r="7" fill="#ef4444"/>
+        <circle cx="85" cy="65" r="7" fill="#f59e0b"/>
+        <circle cx="110" cy="65" r="7" fill="#10b981"/>
+        <text x="140" y="70" fill="#a7f3d0" font-family="system-ui, sans-serif" font-size="13">deliverproof.console/license-provisioning</text>
+        <line x1="30" y1="95" x2="770" y2="95" stroke="#047857" stroke-width="1"/>
+        <rect x="60" y="120" width="680" height="110" rx="8" fill="#022c22" stroke="#10b981"/>
+        <text x="85" y="155" fill="#34d399" font-family="system-ui, sans-serif" font-weight="bold" font-size="18">LICENSE KEY ACTIVATION CONFIRMED</text>
+        <text x="85" y="185" fill="#d1fae5" font-family="system-ui, sans-serif" font-size="14">License Code: DPS-9921-XRT-7734-KKL9</text>
+        <text x="85" y="210" fill="#6ee7b7" font-family="system-ui, sans-serif" font-size="12">Customer: TC-1025 • Registered &amp; Verified directly to recipient address</text>
+        <rect x="60" y="250" width="680" height="185" rx="8" fill="#022c22" stroke="#047857"/>
+        <text x="85" y="285" fill="#e2e8f0" font-family="system-ui, sans-serif" font-weight="600" font-size="14">Execution Log &amp; Confirmation Receipt</text>
+        <text x="85" y="318" fill="#94a3b8" font-family="monospace" font-size="12">[2026-09-26 14:15:02] Provisioning server response: 200 OK</text>
+        <text x="85" y="342" fill="#94a3b8" font-family="monospace" font-size="12">[2026-09-26 14:15:03] Digital payload transmitted to designated recipient</text>
+        <text x="85" y="366" fill="#10b981" font-family="monospace" font-size="12">[2026-09-26 14:15:05] Handshake confirmed by receiving host - Delivery Completed</text>
+        <text x="85" y="405" fill="#a7f3d0" font-family="system-ui, sans-serif" font-size="13">Digital Signature: 0x9f4a8b1c... verified valid</text>
+      </svg>`
+    );
+  }
+
+  if (!fs.existsSync(sample3Path)) {
+    fs.writeFileSync(
+      sample3Path,
+      `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+        <rect width="100%" height="100%" fill="#090d16"/>
+        <rect x="30" y="30" width="740" height="440" rx="12" fill="#0f172a" stroke="#3b82f6" stroke-width="1.5"/>
+        <circle cx="60" cy="65" r="7" fill="#ef4444"/>
+        <circle cx="85" cy="65" r="7" fill="#f59e0b"/>
+        <circle cx="110" cy="65" r="7" fill="#10b981"/>
+        <text x="140" y="70" fill="#93c5fd" font-family="system-ui, sans-serif" font-size="13">deliverproof.console/delivery-receipt</text>
+        <line x1="30" y1="95" x2="770" y2="95" stroke="#1e293b" stroke-width="1"/>
+        <rect x="60" y="120" width="680" height="310" rx="8" fill="#1e293b" stroke="#334155"/>
+        <text x="90" y="165" fill="#ffffff" font-family="system-ui, sans-serif" font-weight="bold" font-size="20">Official Certificate of Service Delivery</text>
+        <text x="90" y="195" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="14">Order / Customer ID: <tspan fill="#60a5fa" font-weight="600">TC-1025</tspan></text>
+        <text x="90" y="225" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="14">Service: <tspan fill="#ffffff" font-weight="600">Premium Digital Subscription</tspan></text>
+        <text x="90" y="255" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="14">Delivery Date: <tspan fill="#ffffff" font-weight="600">September 26, 2026</tspan></text>
+        <line x1="90" y1="280" x2="710" y2="280" stroke="#334155"/>
+        <text x="90" y="320" fill="#cbd5e1" font-family="system-ui, sans-serif" font-size="13">Notes: Full onboarding documentation and subscription credentials delivered successfully.</text>
+        <text x="90" y="345" fill="#cbd5e1" font-family="system-ui, sans-serif" font-size="13">Customer acknowledged and confirmed live access with zero errors reported.</text>
+        <rect x="90" y="380" width="220" height="34" rx="6" fill="#2563eb"/>
+        <text x="105" y="402" fill="#ffffff" font-family="system-ui, sans-serif" font-weight="bold" font-size="13">VERIFIED COMPLETED</text>
+      </svg>`
+    );
+  }
+} catch (_err) {
+  // Ignore filesystem errors for sample assets
 }
 
 // Interfaces
@@ -248,36 +272,22 @@ function writeDb(data: DatabaseSchema) {
   fs.renameSync(tempFile, DB_FILE);
 }
 
-// Multer storage for uploaded screenshots
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, UPLOADS_DIR);
-  },
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase() || '.png';
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    cb(null, `proof-${uniqueSuffix}${ext}`);
-  },
-});
-
+// Multer memory storage for robust screenshot handling (compatible with Vercel, Docker & local disk)
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: {
-    fileSize: 15 * 1024 * 1024, // 15MB limit
+    fileSize: 20 * 1024 * 1024, // 20MB limit per image
   },
   fileFilter: (_req, file, cb) => {
-    const allowedMime = [
-      'image/jpeg',
-      'image/jpg',
-      'image/png',
-      'image/webp',
-      'image/gif',
-      'image/svg+xml',
-    ];
-    if (allowedMime.includes(file.mimetype.toLowerCase())) {
+    const ext = path.extname(file.originalname).toLowerCase();
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.svg', '.bmp', '.avif', '.ico', '.jfif', '.pjpeg', '.pjp'];
+    if (
+      (file.mimetype && file.mimetype.toLowerCase().startsWith('image/')) ||
+      allowedExtensions.includes(ext)
+    ) {
       cb(null, true);
     } else {
-      cb(new Error('Invalid file type. Only JPG, PNG, WEBP, GIF, and SVG images are permitted.'));
+      cb(new Error('Invalid file type. Only image files (JPG, PNG, WEBP, GIF, SVG, etc.) are allowed.'));
     }
   },
 });
@@ -293,8 +303,8 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.json({ limit: '30mb' }));
-app.use(express.urlencoded({ extended: true, limit: '30mb' }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // Serve static uploads
 app.use('/uploads', express.static(UPLOADS_DIR));
@@ -560,14 +570,14 @@ app.post(
       if (err) {
         if (err instanceof multer.MulterError) {
           if (err.code === 'LIMIT_FILE_SIZE') {
-            return res.status(400).json({ error: 'File too large. Maximum allowed size per image is 15MB.' });
+            return res.status(400).json({ error: 'File too large. Maximum allowed size per image is 20MB.' });
           }
           return res.status(400).json({ error: `Upload error: ${err.message}` });
         }
         const errorMsg =
           err && typeof err === 'object' && err.message
             ? String(err.message)
-            : 'File upload failed. Only JPG, PNG, WEBP, GIF, and SVG images are permitted.';
+            : 'File upload failed. Only valid image files (JPG, PNG, WEBP, GIF, SVG) are permitted.';
         return res.status(400).json({ error: errorMsg });
       }
 
@@ -577,13 +587,41 @@ app.post(
           return res.status(400).json({ error: 'No files were uploaded.' });
         }
 
-        const uploadedFiles = files.map((file) => ({
-          url: `/uploads/${file.filename}`,
-          filename: file.filename,
-          originalName: file.originalname,
-          size: file.size,
-          mimeType: file.mimetype,
-        }));
+        const uploadedFiles = files.map((file) => {
+          const ext = path.extname(file.originalname).toLowerCase() || '.png';
+          const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+          const filename = `proof-${uniqueSuffix}${ext}`;
+          let mimeType = file.mimetype;
+          if (!mimeType || mimeType === 'application/octet-stream') {
+            if (ext === '.svg') mimeType = 'image/svg+xml';
+            else if (ext === '.jpg' || ext === '.jpeg') mimeType = 'image/jpeg';
+            else if (ext === '.webp') mimeType = 'image/webp';
+            else if (ext === '.gif') mimeType = 'image/gif';
+            else mimeType = 'image/png';
+          }
+
+          let savedUrl = '';
+          // Attempt to write to disk if directory is accessible
+          try {
+            if (!fs.existsSync(UPLOADS_DIR)) {
+              fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+            }
+            const filePath = path.join(UPLOADS_DIR, filename);
+            fs.writeFileSync(filePath, file.buffer);
+            savedUrl = `/uploads/${filename}`;
+          } catch (_writeErr) {
+            // In serverless / read-only filesystem environments (e.g. Vercel), fallback to base64 Data URL
+            savedUrl = `data:${mimeType};base64,${file.buffer.toString('base64')}`;
+          }
+
+          return {
+            url: savedUrl,
+            filename,
+            originalName: file.originalname,
+            size: file.size,
+            mimeType,
+          };
+        });
 
         return res.json({
           success: true,

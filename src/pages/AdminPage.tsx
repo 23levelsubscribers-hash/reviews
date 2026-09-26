@@ -25,6 +25,8 @@ import {
   Filter,
   RefreshCw,
   SlidersHorizontal,
+  Link2,
+  ZoomIn,
 } from 'lucide-react';
 import { api } from '../services/api';
 import { AdminStats, AdminUser, ProofItem } from '../types';
@@ -78,6 +80,9 @@ export const AdminPage: React.FC<AdminPageProps> = ({
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [imageUrlInput, setImageUrlInput] = useState('');
+  const [previewModalImg, setPreviewModalImg] = useState<string | null>(null);
 
   // Change password inputs
   const [currPassword, setCurrPassword] = useState('');
@@ -194,23 +199,145 @@ export const AdminPage: React.FC<AdminPageProps> = ({
     setIsModalOpen(true);
   };
 
-  // Handle file upload
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
+  // Helper to optimize and convert client-side image files if server storage is unavailable
+  const processImageFile = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      // SVG files can be read as Data URL directly
+      if (file.type === 'image/svg+xml' || file.name.toLowerCase().endsWith('.svg')) {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          try {
+            // Scale down very large camera/phone photos to max 1600px width/height for fast loading
+            const maxDim = 1600;
+            let width = img.width;
+            let height = img.height;
+            if (width > maxDim || height > maxDim) {
+              if (width > height) {
+                height = Math.round((height * maxDim) / width);
+                width = maxDim;
+              } else {
+                width = Math.round((width * maxDim) / height);
+                height = maxDim;
+              }
+            }
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+              ctx.drawImage(img, 0, 0, width, height);
+              const dataUrl = canvas.toDataURL('image/jpeg', 0.88);
+              resolve(dataUrl);
+            } else {
+              resolve(e.target?.result as string);
+            }
+          } catch {
+            resolve(e.target?.result as string);
+          }
+        };
+        img.onerror = () => resolve(e.target?.result as string);
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // Robust multi-image file handler (supports API upload, drag & drop, paste, and client-side fallback)
+  const handleFiles = async (files: FileList | File[]) => {
+    const fileArray = Array.from(files).filter(
+      (f) =>
+        f.type.startsWith('image/') ||
+        /\.(jpe?g|png|webp|gif|svg|bmp|avif|ico|jfif)$/i.test(f.name)
+    );
+
+    if (fileArray.length === 0) {
+      showToast('Please select valid image files (JPG, PNG, WEBP, GIF, SVG)');
+      return;
+    }
 
     setIsUploading(true);
     setFormError('');
+
     try {
-      const fileList = Array.from(files);
-      const uploadedUrls = await api.uploadScreenshots(fileList);
-      setFormScreenshots((prev) => [...prev, ...uploadedUrls]);
-      showToast(`Uploaded ${uploadedUrls.length} screenshot(s)`);
+      let uploadedUrls: string[] = [];
+      // 1. Try uploading to backend API first
+      try {
+        uploadedUrls = await api.uploadScreenshots(fileArray);
+      } catch (backendErr) {
+        console.warn('Backend upload unavailable, using client-side image processing fallback:', backendErr);
+      }
+
+      // 2. If backend didn't return URLs (e.g. serverless read-only filesystem or network blip), fallback to client-side data URLs
+      if (!uploadedUrls || uploadedUrls.length === 0) {
+        uploadedUrls = await Promise.all(fileArray.map((f) => processImageFile(f)));
+      }
+
+      if (uploadedUrls.length > 0) {
+        setFormScreenshots((prev) => [...prev, ...uploadedUrls]);
+        showToast(`✓ Attached ${uploadedUrls.length} screenshot(s) successfully`);
+      }
     } catch (err: any) {
-      setFormError(getErrorMessage(err, 'Upload failed. Only image files (JPG, PNG, WEBP, GIF, SVG) are allowed.'));
+      setFormError(getErrorMessage(err, 'Failed to process images. Please try again.'));
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  // Handle file input change
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    handleFiles(files);
+  };
+
+  // Support Ctrl+V paste of images directly into proof modal
+  useEffect(() => {
+    if (!isModalOpen) return;
+
+    const handlePaste = (e: ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      const imageFiles: File[] = [];
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          const file = items[i].getAsFile();
+          if (file) imageFiles.push(file);
+        }
+      }
+
+      if (imageFiles.length > 0) {
+        e.preventDefault();
+        handleFiles(imageFiles);
+      }
+    };
+
+    window.addEventListener('paste', handlePaste);
+    return () => window.removeEventListener('paste', handlePaste);
+  }, [isModalOpen]);
+
+  // Direct image URL adder
+  const handleAddImageUrl = (e: React.FormEvent) => {
+    e.preventDefault();
+    const cleanUrl = imageUrlInput.trim();
+    if (!cleanUrl) return;
+    if (!formScreenshots.includes(cleanUrl)) {
+      setFormScreenshots((prev) => [...prev, cleanUrl]);
+      showToast('Image URL attached');
+      setImageUrlInput('');
+    } else {
+      showToast('Image URL already added');
     }
   };
 
@@ -803,59 +930,165 @@ export const AdminPage: React.FC<AdminPageProps> = ({
 
               {/* Upload Screenshots Section */}
               <div className="space-y-3 pt-1">
-                <label className="block text-xs font-semibold text-slate-300">
-                  Screenshots ({formScreenshots.length} uploaded)
-                </label>
+                <div className="flex items-center justify-between">
+                  <label className="block text-xs font-semibold text-slate-300">
+                    Delivery Screenshots / Proof Images ({formScreenshots.length} attached)
+                  </label>
+                  <span className="text-[11px] text-emerald-400 font-medium">
+                    Ctrl + V to paste anywhere
+                  </span>
+                </div>
 
                 {/* Dropzone */}
-                <div className="p-4 rounded-xl border-2 border-dashed border-slate-700 hover:border-emerald-500/60 bg-slate-950 text-center transition-colors">
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setIsDragging(true);
+                  }}
+                  onDragEnter={(e) => {
+                    e.preventDefault();
+                    setIsDragging(true);
+                  }}
+                  onDragLeave={() => setIsDragging(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setIsDragging(false);
+                    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                      handleFiles(e.dataTransfer.files);
+                    }
+                  }}
+                  className={`p-5 rounded-xl border-2 border-dashed transition-all text-center cursor-pointer select-none ${
+                    isDragging
+                      ? 'border-[#4ADE80] bg-emerald-950/40 ring-2 ring-[#4ADE80]/30 scale-[1.01]'
+                      : 'border-slate-700 hover:border-emerald-500/70 bg-slate-950/90 hover:bg-slate-900/60'
+                  }`}
+                >
                   <input
                     ref={fileInputRef}
                     type="file"
                     multiple
-                    accept="image/*"
+                    accept="image/*,.jpg,.jpeg,.png,.webp,.gif,.svg"
                     onChange={handleFileUpload}
                     className="hidden"
                     id="screenshot-file-input"
                   />
-                  <label
-                    htmlFor="screenshot-file-input"
-                    className="cursor-pointer flex flex-col items-center justify-center gap-2"
-                  >
-                    <div className="w-9 h-9 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-                      <Upload className="w-4 h-4" />
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center transition-transform ${
+                        isUploading
+                          ? 'bg-emerald-500/20 text-[#4ADE80] animate-spin'
+                          : isDragging
+                          ? 'bg-[#4ADE80] text-slate-950 scale-110'
+                          : 'bg-emerald-500/10 text-emerald-400'
+                      }`}
+                    >
+                      {isUploading ? (
+                        <RefreshCw className="w-5 h-5" />
+                      ) : (
+                        <Upload className="w-5 h-5" />
+                      )}
                     </div>
-                    <span className="text-xs font-medium text-slate-300">
-                      {isUploading
-                        ? 'Uploading Screenshots...'
-                        : 'Click to Upload or Drag Screenshots Here'}
-                    </span>
-                  </label>
+                    <div>
+                      <div className="text-xs font-semibold text-slate-200">
+                        {isUploading
+                          ? 'Processing and Attaching Screenshots...'
+                          : isDragging
+                          ? 'Drop Images Here to Upload'
+                          : 'Click to Upload, Drag & Drop, or Press Ctrl+V to Paste'}
+                      </div>
+                      <div className="text-[11px] text-slate-400 mt-0.5">
+                        Supports PNG, JPG, WEBP, GIF, SVG (Up to 20MB per photo)
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Direct Image URL Input Bar */}
+                <div className="flex items-center gap-2 pt-1">
+                  <div className="relative flex-1">
+                    <Link2 className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+                    <input
+                      type="url"
+                      placeholder="Or paste external image URL (https://...)"
+                      value={imageUrlInput}
+                      onChange={(e) => setImageUrlInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleAddImageUrl(e);
+                        }
+                      }}
+                      className="w-full pl-8 pr-3 py-1.5 bg-slate-950 rounded-lg border border-slate-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleAddImageUrl}
+                    className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg transition-colors border border-slate-700 shrink-0"
+                  >
+                    Add URL
+                  </button>
                 </div>
 
                 {/* Attached Screenshot Previews */}
                 {formScreenshots.length > 0 && (
-                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5 pt-1">
-                    {formScreenshots.map((url, idx) => (
-                      <div
-                        key={idx}
-                        className="relative group rounded-xl overflow-hidden border border-slate-800 bg-slate-950 aspect-[4/3]"
+                  <div className="space-y-1.5 pt-2">
+                    <div className="text-[11px] font-semibold text-slate-400 flex items-center justify-between">
+                      <span>Attached Images:</span>
+                      <button
+                        type="button"
+                        onClick={() => setFormScreenshots([])}
+                        className="text-rose-400 hover:text-rose-300 text-[10px]"
                       >
-                        <img
-                          src={url}
-                          alt=""
-                          className="w-full h-full object-cover"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveScreenshot(idx)}
-                          className="absolute top-1 right-1 p-1 bg-rose-600 hover:bg-rose-500 text-white rounded-md transition-colors"
-                          title="Remove"
+                        Remove All
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+                      {formScreenshots.map((url, idx) => (
+                        <div
+                          key={idx}
+                          className="relative group rounded-xl overflow-hidden border border-slate-800 bg-slate-950 aspect-[4/3] shadow-md"
                         >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    ))}
+                          <img
+                            src={url}
+                            alt=""
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                          />
+
+                          {/* Index badge */}
+                          <div className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded bg-slate-950/80 text-[10px] font-mono text-emerald-400 font-bold border border-slate-700">
+                            #{idx + 1}
+                          </div>
+
+                          {/* Hover Actions */}
+                          <div className="absolute inset-0 bg-slate-950/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setPreviewModalImg(url);
+                              }}
+                              className="p-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors shadow"
+                              title="Zoom Preview"
+                            >
+                              <ZoomIn className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveScreenshot(idx);
+                              }}
+                              className="p-1.5 bg-rose-600 hover:bg-rose-500 text-white rounded-lg transition-colors shadow"
+                              title="Remove"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>
@@ -994,6 +1227,39 @@ export const AdminPage: React.FC<AdminPageProps> = ({
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* --- SCREENSHOT FULL VIEW MODAL --- */}
+      {previewModalImg && (
+        <div
+          onClick={() => setPreviewModalImg(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-8 bg-slate-950/90 backdrop-blur-md animate-in fade-in duration-150 cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative max-w-4xl max-h-[90vh] bg-slate-900 border border-slate-700 rounded-2xl overflow-hidden shadow-2xl flex flex-col cursor-default"
+          >
+            <div className="flex items-center justify-between p-3.5 bg-slate-900 border-b border-slate-800">
+              <span className="text-xs font-semibold text-slate-300">
+                Screenshot Preview
+              </span>
+              <button
+                type="button"
+                onClick={() => setPreviewModalImg(null)}
+                className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="overflow-auto max-h-[80vh] p-2 bg-slate-950 flex items-center justify-center">
+              <img
+                src={previewModalImg}
+                alt="Screenshot full size"
+                className="max-w-full max-h-[75vh] object-contain rounded-lg"
+              />
+            </div>
           </div>
         </div>
       )}
