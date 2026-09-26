@@ -17,6 +17,7 @@ export default function App() {
   function parseRoute(): RouteState {
     const path = window.location.pathname;
     const hash = window.location.hash;
+    const urlParams = new URLSearchParams(window.location.search);
 
     // Check admin / upload route
     if (
@@ -47,7 +48,6 @@ export default function App() {
     }
 
     // Check query param fallback (?proof=TC-1025)
-    const urlParams = new URLSearchParams(window.location.search);
     const proofParam = urlParams.get('proof') || urlParams.get('id');
     if (proofParam) {
       return { type: 'proof', customerId: proofParam.trim() };
